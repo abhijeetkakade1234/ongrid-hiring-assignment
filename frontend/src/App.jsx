@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -7,9 +7,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-} from "recharts";
+} from 'recharts';
 
-const API = "/api";
+const API = '/api';
 
 function App() {
   const [categories, setCategories] = useState([]);
@@ -23,13 +23,13 @@ function App() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [form, setForm] = useState({
-    category_id: "",
-    amount: "",
-    description: "",
-    expense_date: "",
+    category_id: '',
+    amount: '',
+    description: '',
+    expense_date: '',
   });
-  const [catName, setCatName] = useState("");
-  const [msg, setMsg] = useState("");
+  const [catName, setCatName] = useState('');
+  const [msg, setMsg] = useState('');
 
   const loadCategories = useCallback(async () => {
     const r = await fetch(`${API}/categories`);
@@ -38,18 +38,14 @@ function App() {
   }, []);
 
   const loadExpenses = useCallback(async () => {
-    const r = await fetch(
-      `${API}/expenses?page=${page}&per_page=${perPage}`
-    );
+    const r = await fetch(`${API}/expenses?page=${page}&per_page=${perPage}`);
     const data = await r.json();
     setExpenses(data.items || []);
     setTotal(data.total || 0);
   }, [page, perPage]);
 
   const loadMonthlyReport = useCallback(async () => {
-    const r = await fetch(
-      `${API}/reports/monthly?year=${year}&month=${month}`
-    );
+    const r = await fetch(`${API}/reports/monthly?year=${year}&month=${month}`);
     const data = await r.json();
     setMonthlyByCat(data.category_totals_for_chart || []);
   }, [year, month]);
@@ -84,30 +80,28 @@ function App() {
 
   const addCategory = async (e) => {
     e.preventDefault();
-    setMsg("");
+    setMsg('');
     const r = await fetch(`${API}/categories`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: catName }),
     });
     if (r.ok) {
-      setCatName("");
+      setCatName('');
       loadCategories();
     } else {
       const j = await r.json().catch(() => ({}));
-      setMsg(j.error || "Failed");
+      setMsg(j.error || 'Failed');
     }
   };
 
   const addExpense = async (e) => {
     e.preventDefault();
-    setMsg("");
-    const dateStr =
-      form.expense_date ||
-      new Date().toISOString().slice(0, 10);
+    setMsg('');
+    const dateStr = form.expense_date || new Date().toISOString().slice(0, 10);
     const r = await fetch(`${API}/expenses`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         category_id: Number(form.category_id),
         amount: form.amount,
@@ -116,18 +110,18 @@ function App() {
       }),
     });
     if (r.ok) {
-      setForm((f) => ({ ...f, amount: "", description: "" }));
+      setForm((f) => ({ ...f, amount: '', description: '' }));
       loadExpenses();
       loadMonthlyReport();
       loadTrend();
     } else {
       const j = await r.json().catch(() => ({}));
-      setMsg(j.error || "Failed");
+      setMsg(j.error || 'Failed');
     }
   };
 
   const removeExpense = async (id) => {
-    await fetch(`${API}/expenses/${id}`, { method: "DELETE" });
+    await fetch(`${API}/expenses/${id}`, { method: 'DELETE' });
     loadExpenses();
     loadMonthlyReport();
     loadTrend();
@@ -154,7 +148,7 @@ function App() {
           <button type="submit">Add category</button>
         </form>
         <p className="muted">
-          {categories.map((c) => c.name).join(", ") || "No categories yet."}
+          {categories.map((c) => c.name).join(', ') || 'No categories yet.'}
         </p>
       </div>
 
@@ -202,10 +196,10 @@ function App() {
             </div>
           </div>
           <div className="row">
-            <div style={{ flex: 1, maxWidth: "100%" }}>
+            <div style={{ flex: 1, maxWidth: '100%' }}>
               <label>Description</label>
               <input
-                style={{ maxWidth: "100%" }}
+                style={{ maxWidth: '100%' }}
                 value={form.description}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, description: e.target.value }))
@@ -220,7 +214,9 @@ function App() {
       </div>
 
       <div className="card">
-        <h2>Reporting — {year}-{String(month).padStart(2, "0")}</h2>
+        <h2>
+          Reporting — {year}-{String(month).padStart(2, '0')}
+        </h2>
         <div className="row">
           <div>
             <label>Year</label>
@@ -246,12 +242,18 @@ function App() {
         </p>
         <div className="chart-wrap">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyByCat} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <BarChart
+              data={monthlyByCat}
+              margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#38444d" />
               <XAxis dataKey="name" stroke="#8b98a5" />
               <YAxis stroke="#8b98a5" />
               <Tooltip
-                contentStyle={{ background: "#1a1f26", border: "1px solid #38444d" }}
+                contentStyle={{
+                  background: '#1a1f26',
+                  border: '1px solid #38444d',
+                }}
               />
               <Bar dataKey="amt" fill="#1d9bf0" name="Total" />
             </BarChart>
@@ -265,12 +267,18 @@ function App() {
         {!chartError && (
           <div className="chart-wrap">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trendData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <BarChart
+                data={trendData}
+                margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#38444d" />
                 <XAxis dataKey="month" stroke="#8b98a5" />
                 <YAxis stroke="#8b98a5" />
                 <Tooltip
-                  contentStyle={{ background: "#1a1f26", border: "1px solid #38444d" }}
+                  contentStyle={{
+                    background: '#1a1f26',
+                    border: '1px solid #38444d',
+                  }}
                 />
                 <Bar dataKey="total" fill="#7856ff" name="Spend" />
               </BarChart>
